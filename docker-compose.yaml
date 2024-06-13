@@ -1,0 +1,12 @@
+name: "cassandra-case-study"
+services:
+    database:
+        container_name: "cassandra-db"
+        build:
+            context: .
+            dockerfile: "cassandra-db.dockerfile"
+        restart: "always"
+        ports:
+            - "9042:9042"
+        volumes:
+            - ./data:/var/lib/cassandra-data
