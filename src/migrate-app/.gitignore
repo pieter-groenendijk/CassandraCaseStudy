@@ -1,2 +1,5 @@
 # Node modules
 node_modules/
+
+# data with the data to be migrated 33gb
+data/
