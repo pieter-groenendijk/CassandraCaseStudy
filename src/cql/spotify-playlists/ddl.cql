@@ -27,7 +27,7 @@ create type
     "NameURIPair"
 (
     "name" text,
-    "uri" text
+    "URI" text
 );
 
 
