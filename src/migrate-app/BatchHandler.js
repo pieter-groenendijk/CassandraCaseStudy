@@ -59,25 +59,6 @@ class BatchHandler extends EventTarget {
             })
     }
 
-    // abort() {
-    //     this.stop(this.#clearDatabase.bind(this));
-    // }
-    //
-    // /**
-    //  * Starts the close procedure. Will wait for all batches to settle.
-    //  * @returns {Promise<void>}
-    //  */
-    // stop(afterSettled = () => {}) {
-    //
-    //
-    //
-    //     console.log(`Waiting for all ${this.#unsettledBatches.size} sent batches to settle...`);
-    //     return Promise.all(this.#unsettledBatches).then(() => {
-    //         console.log('All batches have been settled.');
-    //         afterSettled();
-    //     });
-    // }
-
     /**
      * Adds given statement to the current batch. Automatically sends the batch if
      *  - It reaches the configured batchSize
@@ -129,8 +110,6 @@ class BatchHandler extends EventTarget {
     #abort() {
         // Remove queued batches that haven't been sent yet.
         this.#batchQueue = new Queue();
-
-        this.#stopIfDone();
     }
 
     #stopIfDone() {

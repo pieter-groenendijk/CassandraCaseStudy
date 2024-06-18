@@ -2,43 +2,46 @@ const cassandra = require('cassandra-driver');
 const fs = require("fs");
 const BatchHandler = require('./BatchHandler');
 
-main(async (client) => {
-    const dataFolderPath = __dirname + '/data/';
-    // For now just migrate one slice
+main();
 
-    const tempFilePath = dataFolderPath + 'mpd.slice.0-999.json';
-
-    const batchHandler = new BatchHandler(client);
-
-    await migrateSlice(tempFilePath, batchHandler);
-
-    await batchHandler.waitTilDone();
-});
-
-async function main(migrate) {
+async function main() {
     const client = new cassandra.Client({
         contactPoints: ['localhost'],
         localDataCenter: 'datacenter1',
         keyspace: 'SpotifyPlaylists',
     });
+
     await client.connect(); // no try catch since application is reliant on it to work.
     console.log('Connected to Cassandra.');
 
     try {
         await migrate(client);
     } catch (error) {
-        console.error('Error while executing main application logic');
-        console.error(error);
+        console.error('Error while executing main application logic', error);
     } finally {
         await client.shutdown();
         console.log('Disconnected from Cassandra.');
     }
 }
 
+async function migrate(client) {
+    const timerName = 'Elapsed time';
+    console.time(timerName);
+    const dataFolderPath = __dirname + '/data/';
+
+    // For now just migrate one slice
+    const tempFilePath = dataFolderPath + 'mpd.slice.0-999.json';
+
+    const batchHandler = new BatchHandler(client);
+    await migrateSlice(tempFilePath, batchHandler);
+    await batchHandler.waitTilDone();
+    console.timeEnd(timerName);
+}
+
 async function migrateSlice(filePath, batchHandler) {
     const playlists = await readSlice(filePath);
 
-    for (let i = 0; i < 5; ++i) {
+    for (let i = 0; i < playlists.length; ++i) {
         migratePlaylist(playlists[i], batchHandler);
     }
 }
@@ -80,12 +83,6 @@ function insertTrack(track, batchHandler) {
     }
 
     batchHandler.addStatement(statement);
-
-    // await _client.execute(statement.query, statement.params, {prepare: true}).then(result => {
-    //     console.log('insert successful');
-    // }).catch(error => {
-    //     console.error(error);
-    // });
 }
 
 function insertPlaylist(playlist, trackURIs, batchHandler) {
@@ -104,9 +101,9 @@ function readSlice(filePath) {
         fs.readFile(filePath, 'utf8', (error, data) => {
             if (error) reject(error);
 
-            resolve(data);
+            resolve(
+                JSON.parse(data).playlists
+            );
         });
-    }).then((data) => {
-        return JSON.parse(data).playlists;
-    });
+    })
 }

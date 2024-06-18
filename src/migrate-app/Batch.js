@@ -40,14 +40,13 @@ class Batch extends EventTarget {
     /**
      *
      * @returns {any}
-     * @throws Error
+     * @throws Error Errors should be caught upstream.
      */
     send() {
         return this.#client.batch(this.#statements, {prepare: true})
             .then(() => {
                 console.log(`Batch ${this.id} executed successfully.`);
             });
-            // Errors should be caught upstream.
     }
 }
 
