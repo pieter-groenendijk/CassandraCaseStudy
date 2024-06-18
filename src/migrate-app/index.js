@@ -1,18 +1,16 @@
 const cassandra = require('cassandra-driver');
 
-
-const client = new cassandra.Client({
-    contactPoints: ['localhost'],
-    localDataCenter: 'datacenter1',
-    keyspace: 'SpotifyPlaylists',
-});
-
-async function main(callback) {
+async function main(migrate) {
+    const client = new cassandra.Client({
+        contactPoints: ['localhost'],
+        localDataCenter: 'datacenter1',
+        keyspace: 'SpotifyPlaylists',
+    });
     await client.connect(); // no try catch since application is reliant on it to work.
     console.log('Connected to Cassandra.');
 
     try {
-        await callback();
+        await migrate();
     } catch (error) {
         console.error('Error while executing main application logic');
         console.error(error);
@@ -23,5 +21,5 @@ async function main(callback) {
 }
 
 main(() => {
-    console.log('application code');
+
 });
