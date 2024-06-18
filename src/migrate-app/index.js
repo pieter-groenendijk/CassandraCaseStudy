@@ -1,13 +1,18 @@
 const cassandra = require('cassandra-driver');
 const fs = require("fs");
+const BatchHandler = require('./BatchHandler');
 
-main((client) => {
+main(async (client) => {
     const dataFolderPath = __dirname + '/data/';
     // For now just migrate one slice
 
     const tempFilePath = dataFolderPath + 'mpd.slice.0-999.json';
 
-    migrateSlice(tempFilePath);
+    const batchHandler = new BatchHandler(client);
+
+    await migrateSlice(tempFilePath, batchHandler);
+
+    await batchHandler.waitTilDone();
 });
 
 async function main(migrate) {
@@ -30,13 +35,61 @@ async function main(migrate) {
     }
 }
 
-/**
- * @returns {Promise<void>}
- */
-async function migrateSlice(filePath) {
+async function migrateSlice(filePath, batchHandler) {
     const playlists = await readSlice(filePath);
 
-    console.log(playlists);
+    for (let i = 0; i < 5; ++i) {
+        migratePlaylist(playlists[i], batchHandler);
+    }
+}
+
+function migratePlaylist(playlist, batchHandler) {
+    const tracks = playlist.tracks;
+    const trackURIs = new Array(tracks.length);
+
+    for (let i = 0; i < tracks.length; ++i) {
+        const track = tracks[i];
+        insertTrack(track, batchHandler);
+        trackURIs[i] = track['track_uri'];
+    }
+}
+
+/**
+ * @typedef {Object} CassandraPreparedStatement
+ * @property {string} query
+ * @property {string[]} params
+ */
+
+function insertTrack(track, batchHandler) {
+    /**
+     * @type {CassandraPreparedStatement}
+     */
+    const statement = {
+        query:
+            'insert into "Track" ("name", "URI", "artist", "durationInMs", "position", "album") values (?,?,{"name": ?,"URI": ?},?,?,{"name": ?,"URI": ?});',
+        params: [
+            track['track_name'],
+            track['track_uri'],
+            track['artist_name'],
+            track['artist_uri'],
+            track['duration_ms'],
+            track['pos'],
+            track['album_name'],
+            track['album_uri']
+        ]
+    }
+
+    batchHandler.addStatement(statement);
+
+    // await _client.execute(statement.query, statement.params, {prepare: true}).then(result => {
+    //     console.log('insert successful');
+    // }).catch(error => {
+    //     console.error(error);
+    // });
+}
+
+function insertPlaylist(playlist, trackURIs, batchHandler) {
+
 }
 
 /**

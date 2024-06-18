@@ -19,9 +19,13 @@ with replication = {
  */
 use "SpotifyPlaylists";
 
-
+drop table if exists
+    "Track";
+drop table if exists
+    "Playlist";
 drop type if exists
     "NameURIPair";
+
 
 create type
     "NameURIPair"
@@ -30,9 +34,6 @@ create type
     "URI" text
 );
 
-
-drop table if exists
-    "Track";
 
 create table
     "Track"
@@ -46,9 +47,6 @@ create table
     primary key (("URI"), "name") // "URI" is the partition key. "name" is a clustering column to allow efficient querying by track names.
 );
 
-
-drop table if exists
-    "Playlist";
 
 create table
     "Playlist"
