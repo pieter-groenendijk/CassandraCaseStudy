@@ -10,7 +10,7 @@ async function main(migrate) {
     console.log('Connected to Cassandra.');
 
     try {
-        await migrate();
+        await migrate(client);
     } catch (error) {
         console.error('Error while executing main application logic');
         console.error(error);
@@ -20,6 +20,6 @@ async function main(migrate) {
     }
 }
 
-main(() => {
+main((client) => {
 
 });
