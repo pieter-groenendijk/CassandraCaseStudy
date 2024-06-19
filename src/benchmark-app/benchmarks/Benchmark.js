@@ -24,7 +24,7 @@ class Benchmark {
         const elapsedTimes = new Array(numberOfIterations);
         try {
             for (let i = 0; i < numberOfIterations; ++i) {
-                await this.#runOne(actionArguments);
+                elapsedTimes[i] = await this.#runOne(actionArguments);
             }
 
             this.#showResults(elapsedTimes);
@@ -37,14 +37,16 @@ class Benchmark {
      * Runs one iteration of the benchmark
      *
      * @param actionArguments arguments to pass to the action to be executed
-     * @returns {number} Returns the elapsed time in ms.
+     * @returns {Promise<number>} Returns the elapsed time in ms.
      */
-    async #runOne(actionArguments) {
-        const startTime = performance.now();
+    #runOne(actionArguments) {
+        return new Promise(async (resolve) => {
+            const startTime = performance.now();
 
-        await this.executeAction(actionArguments);
+            await this.executeAction(...actionArguments);
 
-        return performance.now() - startTime; // elapsed time
+            resolve(performance.now() - startTime); // elapsed time
+        });
     }
 
     /**

@@ -1,5 +1,5 @@
 const Benchmark = require('./Benchmark');
-const { Client } = require('cassandra-driver');
+const cassandra = require('cassandra-driver');
 
 /**
  * @class CassandraBenchmark
@@ -11,7 +11,7 @@ class CassandraBenchmark extends Benchmark {
     }
 
     async run(numberOfIterations = 50) {
-        const client = new Client({
+        const client = new cassandra.Client({
             contactPoints: ['localhost'],
             localDataCenter: 'datacenter1',
             keyspace: 'SpotifyPlaylists',
