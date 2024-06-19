@@ -17,12 +17,14 @@ class Benchmark {
     /**
      * Runs the benchmark the specified amount of times. The results are logged into the console.
      * @protected
+     * @param {number} numberOfIterations amount of times the benchmark will be run.
+     * @param actionArguments arguments to pass to the action to be executed
      */
-    run(numberOfIterations = 50) {
+    run(numberOfIterations = 50, ...actionArguments) {
         const elapsedTimes = new Array(numberOfIterations);
         try {
             for (let i = 0; i < numberOfIterations; ++i) {
-                this.#runOne();
+                this.#runOne(actionArguments);
             }
 
             this.#showResults(elapsedTimes);
@@ -34,12 +36,13 @@ class Benchmark {
     /**
      * Runs one iteration of the benchmark
      *
+     * @param actionArguments arguments to pass to the action to be executed
      * @returns {number} Returns the elapsed time in ms.
      */
-    #runOne() {
+    #runOne(actionArguments) {
         const startTime = performance.now();
 
-        this.executeAction();
+        this.executeAction(actionArguments);
 
         return performance.now() - startTime; // elapsed time
     }
