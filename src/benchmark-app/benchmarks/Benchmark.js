@@ -8,6 +8,7 @@ const { performance } = require('node:perf_hooks');
 class Benchmark {
     #name;
     #description;
+
     constructor(name = 'Benchmark', description = '') {
         this.#name = name;
         this.#description = description;
@@ -15,13 +16,16 @@ class Benchmark {
 
     /**
      * Runs the benchmark the specified amount of times. The results are logged into the console.
+     * @protected
      */
     run(numberOfIterations = 50) {
         const elapsedTimes = new Array(numberOfIterations);
         try {
             for (let i = 0; i < numberOfIterations; ++i) {
-
+                this.#runOne();
             }
+
+            this.#showResults(elapsedTimes);
         } catch (error) {
             this.#showError(error);
         }
