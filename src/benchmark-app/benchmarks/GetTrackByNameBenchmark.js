@@ -12,10 +12,9 @@ class GetTrackByNameBenchmark extends CassandraBenchmark {
         );
     }
 
-    /**
-     * @override
-     */
-    executeAction() {
-
+    async executeAction(client) {
+        await client.execute('select "URI" from "Track" where "name" = ?;', ['All The Feels']);
     }
 }
+
+module.exports = GetTrackByNameBenchmark;
