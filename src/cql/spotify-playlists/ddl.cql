@@ -42,7 +42,6 @@ create table
     "URI" text,
     "artist" frozen<"NameURIPair">,
     "durationInMs" int,
-    "position" int,
     "album" frozen<"NameURIPair">,
     primary key (("URI"), "name") // "URI" is the partition key. "name" is a clustering column to allow efficient querying by track names.
 );
@@ -56,7 +55,7 @@ create table
     "description" text,
     "isCollaborative" boolean,
     "modifiedAt" timestamp,
-    "tracks" list<text>, // Tracks are always loaded as a whole // Can't use a set since duplicate tracks inside a playlist is allowed.
+    "tracks" map<int, text>, // position, URI // Tracks are always loaded as a whole // Can't use a set since duplicate tracks inside a playlist is allowed.
     "durationInMs" bigint,
     "numberOfArtists" int,
     "numberOfAlbums" int,
