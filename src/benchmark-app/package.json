@@ -7,5 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Pieter Groenendijk",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "cassandra-driver": "^4.7.2"
+  }
 }
