@@ -43,8 +43,20 @@ create table
     "artist" frozen<"NameURIPair">,
     "durationInMs" int,
     "album" frozen<"NameURIPair">,
-    primary key (("name"))
+    primary key ("URI")
 );
+
+create materialized view // We give up write speed but maintain an consistent low read speed for when a tracks needs to be searched on by name (Search functionality)!
+    "TrackByName"
+as
+select
+    *
+from
+    "Track"
+where
+    "URI" is not null
+    and "name" is not null
+primary key (("name"), "URI");
 
 
 create table
@@ -62,5 +74,5 @@ create table
     "numberOfTracks" int,
     "numberOfFollowers" int,
     "numberOfEdits" int,
-    primary key (("name"))
+    primary key (("name"), "id")
 );
