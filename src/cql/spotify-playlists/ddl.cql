@@ -43,7 +43,7 @@ create table
     "artist" frozen<"NameURIPair">,
     "durationInMs" int,
     "album" frozen<"NameURIPair">,
-    primary key (("URI"), "name") // "URI" is the partition key. "name" is a clustering column to allow efficient querying by track names.
+    primary key (("name"))
 );
 
 
@@ -62,5 +62,5 @@ create table
     "numberOfTracks" int,
     "numberOfFollowers" int,
     "numberOfEdits" int,
-    primary key (("id"), "name") // "ID" is the partition key. "name" is a clustering column to allow efficient querying by playlist names.
+    primary key (("name"))
 );
