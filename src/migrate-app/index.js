@@ -1,6 +1,4 @@
 const cassandra = require('cassandra-driver');
-const fs = require("fs");
-const BatchHandler = require('./BatchHandler');
 const { migrate } = require('./migrate');
 
 main();
