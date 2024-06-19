@@ -13,7 +13,7 @@ async function main() {
     });
 
     await client.connect(); // no try catch since application is reliant on it to work.
-    console.log('Connected to Cassandra.');
+    console.info('Connected to Cassandra.');
 
     try {
         await migrate(client);
@@ -21,7 +21,7 @@ async function main() {
         console.error('Error while executing main application logic', error);
     } finally {
         await client.shutdown();
-        console.log('Disconnected from Cassandra.');
+        console.info('Disconnected from Cassandra.');
     }
 }
 

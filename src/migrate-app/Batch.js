@@ -34,7 +34,7 @@ class Batch extends EventTarget {
 
     #emitReadyEvent() {
         this.dispatchEvent(new Event('ready'));
-        console.log(`Batch ${this.id} ready to send...`);
+        // console.debug(`Batch ${this.id} ready to send...`);
     }
 
     /**
@@ -45,7 +45,7 @@ class Batch extends EventTarget {
     send() {
         return this.#client.batch(this.#statements, {prepare: true})
             .then(() => {
-                console.log(`Batch ${this.id} executed successfully.`);
+                // console.debug(`Batch ${this.id} executed successfully.`);
             });
     }
 }

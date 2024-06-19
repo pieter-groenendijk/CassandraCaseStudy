@@ -34,13 +34,13 @@ class BatchHandler extends EventTarget {
 
         if (maybeBatch) {
             this.#sendBatch(maybeBatch);
-            console.log(`Sent queued batch ${maybeBatch.id}.`);
+            // console.debug(`Sent queued batch ${maybeBatch.id}.`);
         }
     }
 
     #queueBatch(batch) {
         this.#batchQueue.enqueue(batch);
-        console.log(`Queued batch ${batch.id}.`);
+        // console.debug(`Queued batch ${batch.id}.`);
     }
 
     /**
@@ -95,16 +95,19 @@ class BatchHandler extends EventTarget {
     abort() {
         // Remove queued batches that haven't been sent yet.
         this.#batchQueue = new Queue();
-        console.log("ABORTING");
-        this.abort = this.addStatement = () => {
-            console.log('Can\'t perform operation. BatchHandler is aborting')
-        };
+        this.abort = this.addStatement = () => {};
+
+        this.#emitAbortEvent();
     }
 
     #stopIfDone() {
         if (this.#unsettledBatches.size !== 0) return;
 
         this.#emitDoneEvent();
+    }
+
+    #emitAbortEvent() {
+        this.dispatchEvent(new Event('abort'));
     }
 
     #emitDoneEvent() {

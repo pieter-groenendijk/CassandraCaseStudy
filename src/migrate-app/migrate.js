@@ -4,15 +4,36 @@ const fs = require("fs");
 async function migrate(client) {
     const timerName = 'Elapsed time';
     console.time(timerName);
-    const dataFolderPath = __dirname + '/data/';
 
     // For now just migrate one slice
-    const tempFilePath = dataFolderPath + 'mpd.slice.0-999.json';
 
     const batchHandler = new BatchHandler(client);
-    await migrateSlice(tempFilePath, batchHandler);
-    await batchHandler.waitTilDone();
+    await migrateSlices(client, batchHandler);
+
+
+    // await batchHandler.waitTilDone();
     console.timeEnd(timerName);
+}
+
+async function migrateSlices(client, batchHandler) {
+    return new Promise(async (resolve, reject) => {
+        const dataFolderPath = __dirname + '/data/';
+
+        batchHandler.addEventListener('abort', async () => {
+            console.info('ABORTING');
+            await batchHandler.waitTilDone();
+            reject();
+        });
+        batchHandler.addEventListener('done', () => {
+            console.info('DONE');
+            resolve();
+        });
+
+        const directoryStream = await fs.promises.opendir(dataFolderPath);
+        for await (const directoryEntry of directoryStream) {
+            await migrateSlice(`${dataFolderPath}${directoryEntry.name}`, batchHandler); // It's counterintuitive but the application is faster if we wait for the previous slice to be completely read.
+        }
+    });
 }
 
 async function migrateSlice(filePath, batchHandler) {
@@ -25,13 +46,15 @@ async function migrateSlice(filePath, batchHandler) {
 
 function migratePlaylist(playlist, batchHandler) {
     const tracks = playlist.tracks;
-    const trackURIs = new Array(tracks.length);
+    const playlistTrackMap = {};
 
     for (let i = 0; i < tracks.length; ++i) {
         const track = tracks[i];
         insertTrack(track, batchHandler);
-        trackURIs[i] = track['track_uri'];
+        playlistTrackMap[track['pos']] = track['track_uri'];
     }
+
+    insertPlaylist(playlist, playlistTrackMap, batchHandler);
 }
 
 /**
@@ -61,7 +84,7 @@ function insertTrack(track, batchHandler) {
     batchHandler.addStatement(statement);
 }
 
-function insertPlaylist(playlist, trackURIs, batchHandler) {
+function insertPlaylist(playlist, trackMap, batchHandler) {
 
 }
 
