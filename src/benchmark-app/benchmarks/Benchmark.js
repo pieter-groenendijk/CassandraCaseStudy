@@ -95,8 +95,7 @@ class Benchmark {
     #beginLog() {
         console.log("--------------------------------------");
         console.log(`Benchmark: ${this.#name}`);
-        console.log(`Description: ${this.#description}`);
-        console.log('\n');
+        console.log(`Description: ${this.#description}\n`);
     }
 
     #endLog() {
