@@ -76,7 +76,10 @@ class BatchHandler extends EventTarget {
             batch.send()
                 .catch((error) => {
                     console.error(`Error while executing batch ${batch.id}: `, error, error.info);
-                    this.abort();
+
+                    setTimeout(() => { // Since this is not a production tool this is fine for now
+                        this.#queueBatch(batch);
+                    }, 500);
                 })
                 .finally(() => {
                     this.#unsettledBatches.delete(batch.id);

@@ -19,29 +19,40 @@ async function migrateSlices(client, batchHandler) {
     return new Promise(async (resolve, reject) => {
         const dataFolderPath = __dirname + '/data/';
 
-        batchHandler.addEventListener('abort', async () => {
-            console.info('ABORTING');
-            await batchHandler.waitTilDone();
-            reject();
-        });
-        batchHandler.addEventListener('done', () => {
-            console.info('DONE');
-            resolve();
-        });
-
         const directoryStream = await fs.promises.opendir(dataFolderPath);
+        let sliceCounter = 0;
         for await (const directoryEntry of directoryStream) {
+            ++sliceCounter;
+            const sliceTimerLabel = `Slice ${sliceCounter} Elapsed Time`;
+            console.time(sliceTimerLabel);
             await migrateSlice(`${dataFolderPath}${directoryEntry.name}`, batchHandler); // It's counterintuitive but the application is faster if we wait for the previous slice to be completely read.
+            console.timeEnd(sliceTimerLabel);
         }
     });
 }
 
-async function migrateSlice(filePath, batchHandler) {
-    const playlists = await readSlice(filePath);
+function migrateSlice(filePath, batchHandler) {
+    return new Promise(async (resolve, reject) => {
+        async function abort() {
+            console.info('Aborted Slice');
+            await batchHandler.waitTilDone();
+            reject();
+        }
+        batchHandler.addEventListener('abort', abort);
 
-    for (let i = 0; i < playlists.length; ++i) {
-        migratePlaylist(playlists[i], batchHandler);
-    }
+        function done() {
+            batchHandler.removeEventListener('abort', abort);
+            batchHandler.removeEventListener('done', done);
+            resolve();
+        }
+        batchHandler.addEventListener('done', done);
+
+        const playlists = await readSlice(filePath);
+
+        for (let i = 0; i < playlists.length; ++i) {
+            migratePlaylist(playlists[i], batchHandler);
+        }
+    });
 }
 
 function migratePlaylist(playlist, batchHandler) {
@@ -79,13 +90,32 @@ function insertTrack(track, batchHandler) {
             track['album_name'],
             track['album_uri']
         ]
-    }
+    };
 
     batchHandler.addStatement(statement);
 }
 
 function insertPlaylist(playlist, trackMap, batchHandler) {
+    const statement = {
+        query:
+            'insert into "Playlist" ("id", "name", "description", "isCollaborative", "modifiedAt", "tracks", "durationInMs", "numberOfArtists", "numberOfAlbums", "numberOfTracks", "numberOfFollowers", "numberOfEdits") values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+        params: [
+            playlist['pid'],
+            playlist['name'],
+            playlist['description'],
+            playlist['collaborative'],
+            playlist['modified_at'],
+            trackMap,
+            playlist['duration_ms'],
+            playlist['num_artists'],
+            playlist['num_albums'],
+            playlist['num_tracks'],
+            playlist['num_followers'],
+            playlist['num_edits']
+        ]
+    };
 
+    batchHandler.addStatement(statement);
 }
 
 /**
@@ -100,10 +130,10 @@ function readSlice(filePath) {
         fs.readFile(filePath, 'utf8', (error, data) => {
             if (error) reject(error);
 
-            resolve(
-                JSON.parse(data).playlists
-            );
+            resolve(data);
         });
+    }).then((data) => {
+        return JSON.parse(data).playlists;
     })
 }
 
