@@ -10,7 +10,7 @@ class CassandraBenchmark extends Benchmark {
         super(name, description);
     }
 
-    async run(numberOfIterations = 50, ...actionArguments) {
+    async run(numberOfIterations = 50) {
         const client = new Client({
             contactPoints: ['localhost'],
             localDataCenter: 'datacenter1',
@@ -18,10 +18,16 @@ class CassandraBenchmark extends Benchmark {
         });
         await client.connect();
 
-        super.run(numberOfIterations, [client, ...actionArguments]);
+        await super.run(numberOfIterations, client);
 
         await client.shutdown();
     }
+
+    /**
+     * @method CassandraBenchmark.executionAction
+     * @param {Client} client
+     * @abstract
+     */
 }
 
 module.exports = CassandraBenchmark;
