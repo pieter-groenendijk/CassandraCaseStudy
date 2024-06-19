@@ -1,6 +1,6 @@
 class Batch extends EventTarget {
     static #previousId = -1;
-    static #batchSize = 15;
+    static #batchSize = 100; // ~ 15 is the recommended threshold
 
     id;
     isReady;

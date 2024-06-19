@@ -18,7 +18,7 @@ class BatchHandler extends EventTarget {
     #unsettledBatches;
     #batchQueue;
 
-    constructor(client, maxConcurrentBatches = 5) {
+    constructor(client, maxConcurrentBatches = 75) {
         super();
         this.#client = client;
         this.#maxConcurrentBatches = maxConcurrentBatches;
@@ -41,22 +41,6 @@ class BatchHandler extends EventTarget {
     #queueBatch(batch) {
         this.#batchQueue.enqueue(batch);
         console.log(`Queued batch ${batch.id}.`);
-    }
-
-    #clearDatabase() {
-        return Promise.all(
-            [
-                this.#client.execute('truncate "Playlist"'),
-                this.#client.execute('truncate "Track"')
-            ]
-        )
-            .then(() => {
-                console.log('Successfully cleared database.');
-            })
-            .catch((error) => {
-                console.error('Failed to clear database.');
-                console.error(error);
-            })
     }
 
     /**
@@ -90,8 +74,9 @@ class BatchHandler extends EventTarget {
         this.#unsettledBatches.set(
             batch.id,
             batch.send()
-                .catch(() => {
-                    this.#abort();
+                .catch((error) => {
+                    console.error(`Error while executing batch ${batch.id}: `, error, error.info);
+                    this.abort();
                 })
                 .finally(() => {
                     this.#unsettledBatches.delete(batch.id);
@@ -107,9 +92,13 @@ class BatchHandler extends EventTarget {
         });
     }
 
-    #abort() {
+    abort() {
         // Remove queued batches that haven't been sent yet.
         this.#batchQueue = new Queue();
+        console.log("ABORTING");
+        this.abort = this.addStatement = () => {
+            console.log('Can\'t perform operation. BatchHandler is aborting')
+        };
     }
 
     #stopIfDone() {
