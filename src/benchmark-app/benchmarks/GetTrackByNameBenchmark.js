@@ -13,7 +13,7 @@ class GetTrackByNameBenchmark extends CassandraBenchmark {
     }
 
     async executeAction(client) {
-        await client.execute('select * from "Track" where "name" = ?;', ['You Wear Those Eyes']);
+        await client.execute('select * from "TrackByName" where "name" = ?;', ['You Wear Those Eyes']);
     }
 }
 
