@@ -3,7 +3,7 @@
 CONTAINER_NAME='cassandra-db'
 
 # Run cassandra
-sh ./run-cassandra.sh
+sh ./run-db.sh
 
 # Path to ddl script
 SCRIPT_FILE='../src/cql/spotify-playlists/ddl.cql'

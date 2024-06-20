@@ -3,6 +3,6 @@
 CONTAINER_NAME='cassandra-db'
 
 # Run cassandra
-sh ./run-cassandra.sh
+sh ./run-db.sh
 
 node ../src/migrate-app/index.js
