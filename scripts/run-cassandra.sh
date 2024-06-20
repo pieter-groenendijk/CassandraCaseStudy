@@ -4,7 +4,7 @@
 sudo systemctl start docker
 
 # Start Cassandra via docker
-sudo docker compose -f /home/compjeuter/Other/Projects/CassandraCaseStudy/docker-compose.yaml -p cassandra-case-study up --force-recreate -d
+sudo docker compose -f /home/compjeuter/Other/Projects/CassandraCaseStudy/docker-compose.yaml -p cassandra-case-study up -d
 
 CASSANDRA_CONTAINER_NAME='cassandra-db'
 
