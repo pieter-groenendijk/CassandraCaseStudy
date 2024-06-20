@@ -75,3 +75,20 @@ create table
     "album" frozen<"NameURIPair">,
     primary key (("playlistId"), "URI") // Allows filtering based of "playlistId", "URI" to make fully unique
 );
+
+-- create table
+--     "MostFollowedPlaylist"
+-- (
+--     "id" bigint,
+--     "name" text,
+--     "description" text,
+--     "isCollaborative" boolean,
+--     "modifiedAt" timestamp,
+--     "durationInMs" bigint,
+--     "numberOfArtists" int,
+--     "numberOfAlbums" int,
+--     "numberOfTracks" int,
+--     "numberOfFollowers" int,
+--     "numberOfEdits" int,
+--     primary key (("id"), "numberOfFollowers") // Allows filtering based of "name", "id" to make fully unique
+-- ) with clustering order by ("numberOfFollowers" desc);
