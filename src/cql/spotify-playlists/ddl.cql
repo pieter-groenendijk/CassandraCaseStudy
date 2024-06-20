@@ -1,34 +1,27 @@
-/*
-    Author: Pieter Groenendijk
- */
-/*
-    Creating of a keyspace named "SpotifyPlaylists".
- */
+-- Author: Pieter Groenendijk
+-- Creating of a keyspace named "SpotifyPlaylists".
+
 drop keyspace if exists
     "SpotifyPlaylists";
 
 create keyspace
     "SpotifyPlaylists"
 with replication = {
-    'class': 'SimpleStrategy', // Development purposes.
+    'class': 'SimpleStrategy', -- Development purposes.
     'replication_factor': '1'
 };
 
-/*
-    Set the current context to the newly made keyspace.
- */
-use "SpotifyPlaylists";
-
+-- Set the current context to the newly made keyspace.
 drop table if exists
-    "Track";
+    "SpotifyPlaylists"."Track";
 drop table if exists
-    "Playlist";
+    "SpotifyPlaylists"."Playlist";
 drop type if exists
-    "NameURIPair";
+    "SpotifyPlaylists"."NameURIPair";
 
 
 create type
-    "NameURIPair"
+    "SpotifyPlaylists"."NameURIPair"
 (
     "name" text,
     "URI" text
@@ -36,18 +29,18 @@ create type
 
 
 create table
-    "Track"
+    "SpotifyPlaylists"."Track"
 (
     "name" text,
     "URI" text,
     "artist" frozen<"NameURIPair">,
     "durationInMs" int,
     "album" frozen<"NameURIPair">,
-    primary key (("name"), "URI") // Allows filtering based of "name", "URI" to make fully unique
+    primary key (("name"), "URI") -- Allows filtering based of "name", "URI" to make fully unique
 );
 
 create table
-    "Playlist"
+    "SpotifyPlaylists"."Playlist"
 (
     "id" bigint,
     "name" text,
@@ -60,11 +53,11 @@ create table
     "numberOfTracks" int,
     "numberOfFollowers" int,
     "numberOfEdits" int,
-    primary key (("name"), "id") // Allows filtering based of "name", "id" to make fully unique
+    primary key (("name"), "id") -- Allows filtering based of "name", "id" to make fully unique
 );
 
 create table
-    "PlaylistTrack" // Duplication in the name of read speed. Only one partition needs to be read to retrieve all tracks of a playlist.
+    "SpotifyPlaylists"."PlaylistTrack" -- Duplication in the name of read speed. Only one partition needs to be read to retrieve all tracks of a playlist.
 (
     "playlistId" bigint,
     "position" int,
@@ -73,11 +66,11 @@ create table
     "artist" frozen<"NameURIPair">,
     "durationInMs" int,
     "album" frozen<"NameURIPair">,
-    primary key (("playlistId"), "URI") // Allows filtering based of "playlistId", "URI" to make fully unique
+    primary key (("playlistId"), "URI") -- Allows filtering based of "playlistId", "URI" to make fully unique
 );
 
 -- create table
---     "MostFollowedPlaylist"
+--     "SpotifyPlaylists"."MostFollowedPlaylist"
 -- (
 --     "id" bigint,
 --     "name" text,
