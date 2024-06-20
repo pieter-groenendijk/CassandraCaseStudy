@@ -1,0 +1,1 @@
+node ../src/benchmark-app/index.js
