@@ -43,21 +43,8 @@ create table
     "artist" frozen<"NameURIPair">,
     "durationInMs" int,
     "album" frozen<"NameURIPair">,
-    primary key ("URI")
+    primary key (("name"), "URI") // Allows filtering based of "name", "URI" to make fully unique
 );
-
-create materialized view // We give up write speed but maintain an consistent low read speed for when a tracks needs to be searched on by name (Search functionality)!
-    "TrackByName"
-as
-select
-    *
-from
-    "Track"
-where
-    "URI" is not null
-    and "name" is not null
-primary key (("name"), "URI");
-
 
 create table
     "Playlist"
@@ -67,12 +54,24 @@ create table
     "description" text,
     "isCollaborative" boolean,
     "modifiedAt" timestamp,
-    "tracks" map<int, text>, // position, URI // Tracks are always loaded as a whole // Can't use a set since duplicate tracks inside a playlist is allowed.
     "durationInMs" bigint,
     "numberOfArtists" int,
     "numberOfAlbums" int,
     "numberOfTracks" int,
     "numberOfFollowers" int,
     "numberOfEdits" int,
-    primary key (("name"), "id")
+    primary key (("name"), "id") // Allows filtering based of "name", "id" to make fully unique
+);
+
+create table
+    "PlaylistTrack" // Duplication in the name of read speed. Only one partition needs to be read to retrieve all tracks of a playlist.
+(
+    "playlistId" bigint,
+    "position" int,
+    "name" text,
+    "URI" text,
+    "artist" frozen<"NameURIPair">,
+    "durationInMs" int,
+    "album" frozen<"NameURIPair">,
+    primary key (("playlistId"), "URI") // Allows filtering based of "playlistId", "URI" to make fully unique
 );
