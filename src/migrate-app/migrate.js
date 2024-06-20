@@ -57,15 +57,14 @@ function migrateSlice(filePath, batchHandler) {
 
 function migratePlaylist(playlist, batchHandler) {
     const tracks = playlist.tracks;
-    const playlistTrackMap = {};
 
     for (let i = 0; i < tracks.length; ++i) {
         const track = tracks[i];
         insertTrack(track, batchHandler);
-        playlistTrackMap[track['pos']] = track['track_uri'];
+        insertPlaylistTrack(playlist, track, batchHandler);
     }
 
-    insertPlaylist(playlist, playlistTrackMap, batchHandler);
+    insertPlaylist(playlist, batchHandler);
 }
 
 /**
@@ -95,17 +94,39 @@ function insertTrack(track, batchHandler) {
     batchHandler.addStatement(statement);
 }
 
-function insertPlaylist(playlist, trackMap, batchHandler) {
+function insertPlaylistTrack(playlist, track, batchHandler) {
+    /**
+     * @type {CassandraPreparedStatement}
+     */
     const statement = {
         query:
-            'insert into "Playlist" ("id", "name", "description", "isCollaborative", "modifiedAt", "tracks", "durationInMs", "numberOfArtists", "numberOfAlbums", "numberOfTracks", "numberOfFollowers", "numberOfEdits") values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+            'insert into "PlaylistTrack" ("playlistId", "position", "name", "URI", "artist", "durationInMs", "album") values (?, ?,?,?,{"name": ?,"URI": ?},?,{"name": ?,"URI": ?});',
+        params: [
+            playlist['pid'],
+            track['pos'],
+            track['track_name'],
+            track['track_uri'],
+            track['artist_name'],
+            track['artist_uri'],
+            track['duration_ms'],
+            track['album_name'],
+            track['album_uri']
+        ]
+    };
+
+    batchHandler.addStatement(statement);
+}
+
+function insertPlaylist(playlist, batchHandler) {
+    const statement = {
+        query:
+            'insert into "Playlist" ("id", "name", "description", "isCollaborative", "modifiedAt", "durationInMs", "numberOfArtists", "numberOfAlbums", "numberOfTracks", "numberOfFollowers", "numberOfEdits") values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
         params: [
             playlist['pid'],
             playlist['name'],
             playlist['description'],
             playlist['collaborative'],
             playlist['modified_at'],
-            trackMap,
             playlist['duration_ms'],
             playlist['num_artists'],
             playlist['num_albums'],
