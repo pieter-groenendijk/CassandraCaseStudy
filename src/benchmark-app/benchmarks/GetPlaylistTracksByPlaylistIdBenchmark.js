@@ -8,7 +8,7 @@ class GetPlaylistTracksByPlaylistIdBenchmark extends CassandraBenchmark {
     constructor() {
         super(
             'GetPlaylistTracksByPlaylistIdBenchmark',
-            'WARNING: Retrieve all associated playlist data by specifying the playlist id. Also retrieve all track data of the tracks included in the playlist \n This would simulate an user selecting a playlist in their overview.'
+            'Retrieve all associated playlist data by specifying the playlist id. Also retrieve all track data of the tracks included in the playlist \n This would simulate an user selecting a playlist in their overview.'
         );
     }
 
