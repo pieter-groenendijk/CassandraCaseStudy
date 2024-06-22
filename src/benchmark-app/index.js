@@ -2,6 +2,7 @@ const GetTrackByNameBenchmark = require('./benchmarks/GetTrackByNameBenchmark');
 const GetPlaylistByNameBenchmark = require('./benchmarks/GetPlaylistByNameBenchmark');
 const GetPlaylistTracksByPlaylistIdBenchmark = require('./benchmarks/GetPlaylistTracksByPlaylistIdBenchmark');
 const UpdatePlaylistByIdBenchmark = require('./benchmarks/UpdatePlaylistByIdBenchmark');
+const DeletePlaylistByIdBenchmark = require('./benchmarks/DeletePlaylistByIdBenchmark');
 
 main();
 
@@ -15,6 +16,7 @@ async function runBenchmarks(numberOfIterations = 10000) {
         new GetPlaylistByNameBenchmark(),
         new GetPlaylistTracksByPlaylistIdBenchmark(),
         new UpdatePlaylistByIdBenchmark(),
+        new DeletePlaylistByIdBenchmark(),
     ];
 
     console.log(`Running all benchmarks ${numberOfIterations} times.\n`);
