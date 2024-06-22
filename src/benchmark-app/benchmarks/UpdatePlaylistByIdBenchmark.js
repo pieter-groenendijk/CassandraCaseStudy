@@ -9,8 +9,8 @@ class UpdatePlaylistByIdBenchmark extends CassandraBenchmark {
 
     constructor() {
         super(
-            'UpdatePlaylistByNameBenchmark',
-            'Updates a playlist by specifying a name.'
+            'UpdatePlaylistByIdBenchmark',
+            'Updates a playlist by specifying an id.'
         );
     }
 
