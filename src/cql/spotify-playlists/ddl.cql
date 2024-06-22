@@ -11,6 +11,7 @@ with replication = {
     'replication_factor': '1'
 };
 
+
 -- Set the current context to the newly made keyspace.
 drop table if exists
     "SpotifyPlaylists"."Track";
@@ -36,8 +37,21 @@ create table
     "artist" frozen<"NameURIPair">,
     "durationInMs" int,
     "album" frozen<"NameURIPair">,
-    primary key (("name"), "URI") -- Allows filtering based of "name", "URI" to make fully unique
+    primary key ("URI")
 );
+
+create materialized view -- Creates latency by around ~10% at writes but allows searching by "name". Needed for search functionality.
+    "SpotifyPlaylists"."TrackByName"
+as
+select
+    "name", "URI", "artist", "durationInMs", "album"
+from
+    "SpotifyPlaylists"."Track"
+where
+    "name" is not null
+    and "URI" is not null
+primary key (("name"), "URI"); -- partitioned by "name", "URI" as clustering column to make primary key fully unique.
+
 
 create table
     "SpotifyPlaylists"."Playlist"
@@ -53,8 +67,20 @@ create table
     "numberOfTracks" int,
     "numberOfFollowers" int,
     "numberOfEdits" int,
-    primary key (("name"), "id") -- Allows filtering based of "name", "id" to make fully unique
+    primary key ("id")
 );
+
+create materialized view -- Creates latency by around ~10% at writes but allows searching by "name". Needed for search functionality
+    "SpotifyPlaylists"."PlaylistByName"
+as
+select
+    "id", "name", "description", "isCollaborative", "modifiedAt", "durationInMs", "numberOfArtists", "numberOfAlbums", "numberOfTracks", "numberOfFollowers", "numberOfEdits"
+from
+    "SpotifyPlaylists"."Playlist"
+where
+    "name" is not null
+    and "id" is not null
+primary key (("name"), "id"); -- partitioned by "name", "id" as clustering column to make primary key fully unique.
 
 create table
     "SpotifyPlaylists"."PlaylistTrack" -- Duplication in the name of read speed. Only one partition needs to be read to retrieve all tracks of a playlist.
@@ -66,7 +92,7 @@ create table
     "artist" frozen<"NameURIPair">,
     "durationInMs" int,
     "album" frozen<"NameURIPair">,
-    primary key (("playlistId"), "URI") -- Allows filtering based of "playlistId", "URI" to make fully unique
+    primary key (("playlistId"), "URI")
 );
 
 -- create table
