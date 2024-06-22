@@ -13,7 +13,13 @@ class GetPlaylistByNameBenchmark extends CassandraBenchmark {
     }
 
     async executeAction(client) {
-        await client.execute('select * from "Playlist" where "name" = ?;', ['take.it.back.']);
+        await client.execute('select * from "PlaylistByName" where "name" = ?;', ['take.it.back.']);
+    }
+
+    cleanup(client) {
+    }
+
+    prepare(client) {
     }
 }
 

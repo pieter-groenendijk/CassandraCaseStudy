@@ -17,8 +17,11 @@ class CassandraBenchmark extends Benchmark {
             keyspace: 'SpotifyPlaylists',
         });
         await client.connect();
+        await this.prepare(client);
 
         await super.run(numberOfIterations, client);
+
+        await this.cleanup(client);
 
         await client.shutdown();
     }
@@ -28,6 +31,24 @@ class CassandraBenchmark extends Benchmark {
      * @param {Client} client
      * @abstract
      */
+
+    /**
+     * @method CassandraBenchmark.prepare
+     * @param {Client} client
+     * @abstract
+     */
+    prepare(client) {
+
+    }
+
+    /**
+     * @method CassandraBenchmark.cleanup
+     * @param {Client} client
+     * @abstract
+     */
+    cleanup(client) {
+
+    }
 }
 
 module.exports = CassandraBenchmark;
