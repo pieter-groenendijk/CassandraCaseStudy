@@ -11,7 +11,7 @@ function main() {
     runBenchmarks();
 }
 
-async function runBenchmarks(numberOfIterations = 10000) {
+async function runBenchmarks(numberOfIterations = 100) {
     const benchmarks = [
         new GetTrackByNameBenchmark(),
         new GetPlaylistByNameBenchmark(),
